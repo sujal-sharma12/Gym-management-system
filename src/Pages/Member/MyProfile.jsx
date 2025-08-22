@@ -9,13 +9,13 @@ export default function MyProfile() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const user = auth.currentUser;
+       const user = auth.currentUser;
       if (user) {
-        const docRef = doc(db, "Members", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
+         const docRef = doc(db, "Members", user.uid);
+         const docSnap = await getDoc(docRef);
+         if (docSnap.exists()) {
           setMemberData(docSnap.data());
-        }
+         }
       }
       setLoading(false);
     };
@@ -25,9 +25,9 @@ export default function MyProfile() {
 
   if (loading) {
     return (
-      <div className="w-full flex flex-col items-center justify-center mt-10">
-        <AiOutlineUser className="text-4xl animate-pulse text-gray-600" />
-        <p className="mt-4 text-center text-gray-700">Loading profile...</p>
+       <div className="w-full flex flex-col items-center justify-center mt-10">
+         <AiOutlineUser className="text-4xl animate-pulse text-gray-600" />
+         <p className="mt-4 text-center text-gray-700">Loading profile...</p>
       </div>
     );
   }
@@ -47,11 +47,11 @@ export default function MyProfile() {
       </div>
 
       <div className="border-t pt-4 space-y-2">
-        <p><span className="font-semibold">Gender:</span> {memberData.gender || "N/A"}</p>
-        <p><span className="font-semibold">date Of Birth:</span> {memberData.dob || "N/A"}</p>
+         <p><span className="font-semibold">Gender:</span> {memberData.gender || "N/A"}</p>
+         <p><span className="font-semibold">date Of Birth:</span> {memberData.dob || "N/A"}</p>
         <p><span className="font-semibold">Phone:</span> {memberData.phone || "Not provided"}</p>
-        <p><span className="font-semibold">Membership Plan:</span> {memberData.package || "N/A"}</p>
-        <p><span className="font-semibold">Joined On:</span> {memberData.joiningDate ? new Date(memberData.createdAt.seconds * 1000).toLocaleDateString() : "N/A"}</p>
+          <p><span className="font-semibold">Membership Plan:</span> {memberData.package || "N/A"}</p>
+         <p><span className="font-semibold">Joined On:</span> {memberData.joiningDate ? new Date(memberData.createdAt.seconds * 1000).toLocaleDateString() : "N/A"}</p>
         <p><span className="font-semibold">ExpiryDate:</span> {memberData.expiryDate || "N/A"}</p>
 
       </div>

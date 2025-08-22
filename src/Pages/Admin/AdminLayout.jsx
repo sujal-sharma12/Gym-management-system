@@ -8,6 +8,7 @@ import { RxDashboard } from "react-icons/rx";
 import { FaUserPlus, FaBoxOpen, FaPills, FaLeaf } from "react-icons/fa";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { RiBillLine } from "react-icons/ri";
+import { MdMessage } from "react-icons/md";
 import { use } from "react";
 
 export default function AdminLayout() {
@@ -82,6 +83,11 @@ export default function AdminLayout() {
           onClick={()=>navigate("/admin/assignpackages")}
           className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-700 transition">
             <FaBoxOpen /> Assign Fee Package
+          </button>
+           <button 
+          onClick={()=>navigate("/admin/notifications")}
+          className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-700 transition">
+            <MdMessage /> Assign Notifications
           </button>
           <button
             onClick={() => navigate("/admin/report")}

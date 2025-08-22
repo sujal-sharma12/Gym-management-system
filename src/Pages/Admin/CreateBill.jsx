@@ -1,14 +1,10 @@
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { db } from "../../config/firebase";
 import { collection, addDoc, getDocs, Timestamp } from "firebase/firestore";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 
 export default function CreateBill() {
-  const pdfRef = useRef();
-  const [pdfData, setPdfData] = useState(null);
   const [members, setMembers] = useState([]);
 
   useEffect(() => {
@@ -23,25 +19,9 @@ export default function CreateBill() {
     fetchMembers();
   }, []);
 
-  useEffect(() => {
-    if (pdfData) {
-      setTimeout(() => {
-        const input = pdfRef.current;
-        html2canvas(input, { scale: 2 }).then((canvas) => {
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF("p", "mm", "a4");
-          const imgWidth = 190;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-          pdf.save(`invoice-${pdfData.memberName}.pdf`);
-          setPdfData(null);
-        });
-      }, 200);
-    }
-  }, [pdfData]);
-
   const validationSchema = Yup.object({
-    memberName: Yup.string().required("Member is required"),
+    memberId: Yup.string().required("Member is required"),
+    memberName: Yup.string().required("Member Name is required"),
     package: Yup.string().required("Package is required"),
     amount: Yup.number().required("Amount is required").positive(),
     billDate: Yup.date().required("Bill date is required"),
@@ -50,12 +30,13 @@ export default function CreateBill() {
   });
 
   const initialValues = {
+    memberId: "",
     memberName: "",
     package: "",
     amount: "",
     billDate: "",
     dueDate: "",
-    status: "Unpaid",
+    status: "",
   };
 
   return (
@@ -67,21 +48,19 @@ export default function CreateBill() {
         validationSchema={validationSchema}
         onSubmit={async (values, { resetForm }) => {
           try {
-            const selectedMember = members.find(
-              (m) => m.fullName === values.memberName
-            );
-            if (!selectedMember) return;
-
             const newBill = {
-              memberId: selectedMember.id,
-              ...values,
+              memberId: values.memberId, 
+              memberName: values.memberName,
+              package: values.package,
+              amount: values.amount,
               billDate: Timestamp.fromDate(new Date(values.billDate)),
               dueDate: Timestamp.fromDate(new Date(values.dueDate)),
+              status: values.status,
             };
 
             await addDoc(collection(db, "Bills"), newBill);
-            setPdfData({ ...values, ...selectedMember });
             resetForm();
+            alert("Bill created successfully!");
           } catch (error) {
             console.error("Error adding bill:", error);
           }
@@ -89,19 +68,21 @@ export default function CreateBill() {
       >
         {({ setFieldValue }) => (
           <Form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+         
             <div>
-              <label className="block font-semibold mb-1">Member Name</label>
+              <label className="block font-semibold mb-1">Member</label>
               <Field
                 as="select"
-                name="memberName"
+                name="memberId"
                 className="w-full p-2 border rounded"
                 onChange={(e) => {
-                  const selectedName = e.target.value;
+                  const selectedId = e.target.value;
                   const selectedMember = members.find(
-                    (m) => m.fullName === selectedName
+                    (m) => m.id === selectedId
                   );
-                  setFieldValue("memberName", selectedName);
+                  setFieldValue("memberId", selectedId);
                   if (selectedMember) {
+                    setFieldValue("memberName", selectedMember.fullName || "");
                     setFieldValue("package", selectedMember.package || "");
                     setFieldValue("amount", selectedMember.amount || "");
                   }
@@ -109,18 +90,19 @@ export default function CreateBill() {
               >
                 <option value="">Select Member</option>
                 {members.map((member) => (
-                  <option key={member.id} value={member.fullName}>
+                  <option key={member.id} value={member.id}>
                     {member.fullName} ({member.email})
                   </option>
                 ))}
               </Field>
               <ErrorMessage
-                name="memberName"
+                name="memberId"
                 component="div"
                 className="text-red-500 text-sm"
               />
             </div>
 
+            {/* Package */}
             <div>
               <label className="block font-semibold mb-1">Package</label>
               <Field
@@ -135,6 +117,7 @@ export default function CreateBill() {
               />
             </div>
 
+            {/* Amount */}
             <div>
               <label className="block font-semibold mb-1">Amount</label>
               <Field
@@ -150,6 +133,7 @@ export default function CreateBill() {
               />
             </div>
 
+            {/* Bill Date */}
             <div>
               <label className="block font-semibold mb-1">Bill Date</label>
               <Field
@@ -164,6 +148,7 @@ export default function CreateBill() {
               />
             </div>
 
+            {/* Due Date */}
             <div>
               <label className="block font-semibold mb-1">Due Date</label>
               <Field
@@ -178,6 +163,7 @@ export default function CreateBill() {
               />
             </div>
 
+            {/* Status */}
             <div>
               <label className="block font-semibold mb-1">Status</label>
               <Field
@@ -195,44 +181,18 @@ export default function CreateBill() {
               />
             </div>
 
+            {/* Submit */}
             <div className="md:col-span-2">
               <button
                 type="submit"
                 className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
               >
-                Create & Download Bill
+                Create Bill
               </button>
             </div>
           </Form>
         )}
       </Formik>
-
-      {pdfData && (
-        <div ref={pdfRef} style={{ position: "absolute", left: "-9999px" }}>
-          <div className="bg-white p-6 rounded-lg shadow-md max-w-lg border border-gray-200">
-            <div className="flex flex-col items-center mb-6">
-              <img
-                src="logo/2.png"
-                alt="Gym Logo"
-                className="w-20 h-20 object-contain mb-2"
-              />
-              <h1 className="text-2xl font-bold">Hanover Fitness Center</h1>
-              <p className="text-gray-500">Invoice</p>
-            </div>
-
-            <div className="space-y-2 text-gray-700">
-              <p><strong>Member Name:</strong> {pdfData.memberName}</p>
-              <p><strong>Email:</strong> {pdfData.email}</p>
-              <p><strong>Member ID:</strong> {pdfData.id}</p>
-              <p><strong>Package:</strong> {pdfData.package}</p>
-              <p><strong>Amount:</strong> ₹{pdfData.amount}</p>
-              <p><strong>Bill Date:</strong> {pdfData.billDate}</p>
-              <p><strong>Due Date:</strong> {pdfData.dueDate}</p>
-              <p><strong>Status:</strong> {pdfData.status}</p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

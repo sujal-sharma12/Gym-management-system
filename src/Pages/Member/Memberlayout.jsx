@@ -66,7 +66,7 @@ if (loading)
             <RiBillLine /> My Bills
           </button>
           <button
-            onClick={() => navigate("/member/notifications")}
+            onClick={() => navigate("/member/viewnotifications")}
             className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-700 transition"
           >
             <HiOutlineDocumentReport /> Notifications

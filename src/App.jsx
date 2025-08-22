@@ -23,6 +23,8 @@ import MemberLayout from "./Pages/Member/Memberlayout";
 import MyProfile from "./Pages/Member/MyProfile";
 import Dashboard from "./Pages/Member/Dashboard";
 import Bills from "./Pages/Member/Bill";
+import Notification from "./Pages/Admin/Notification";
+import ViewNotifications from "./Pages/Member/ViewNotifications";
 
 export default function App() {
   return (
@@ -46,6 +48,7 @@ export default function App() {
           <Route path="adddietplan" element={<AddDietPlan/>} />
           <Route path="viewdietplan" element={<ViewEditDietPlan/>} />
           <Route path="deletedietplan" element={<DeleteDietPlan/>} />
+          <Route path="notifications" element={<Notification/>} />
 
          
         </Route>
@@ -54,6 +57,7 @@ export default function App() {
           <Route path="dashboard" element={<Dashboard/>} />
           <Route path="bill" element={<Bills/>} />
           <Route path="profile" element={<MyProfile/>} />
+          <Route path="viewnotifications" element={<ViewNotifications/>} />
         
         </Route>
         <Route path="/user/dashboard" element={<UserDashboard />} />

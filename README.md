@@ -5,6 +5,13 @@ Clone the Repository
 git clone https://github.com/your-username/gym-management-system.git
 cd gym-management-system
 
+Admin Email and Password
+email:admin@gmail.com
+password:admin1
+
+Memeber Email and Password
+Email: jayveer@gmail.com
+password:7048185783
 
 Install Dependencies
 
